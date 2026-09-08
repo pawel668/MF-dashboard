@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MF Dashboard</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+  <script defer src="config.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <main class="shell">
+    <section id="setupView" class="card narrow hidden">
+      <h1>MF Dashboard</h1>
+      <p class="muted">Dashboard jest gotowy, ale wymaga konfiguracji połączenia z Supabase.</p>
+      <div class="notice">Uzupełnij <code>config.js</code> wartościami: Project URL, publishable key i technicznym adresem e-mail konta dashboardu.</div>
+    </section>
+
+    <section id="loginView" class="card narrow hidden">
+      <div class="brand">MF Dashboard</div>
+      <h1>Dostęp do danych</h1>
+      <p class="muted">Wpisz kod dostępu.</p>
+      <form id="loginForm">
+        <label for="accessCode">Kod dostępu</label>
+        <input id="accessCode" name="accessCode" type="password" autocomplete="current-password" required minlength="8" />
+        <button id="loginButton" type="submit">Wejdź</button>
+        <p id="loginError" class="error hidden"></p>
+      </form>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <header class="topbar">
+        <div>
+          <div class="brand">MF Dashboard</div>
+          <div class="muted small">Malfini / obserwacje magazynowe</div>
+        </div>
+        <div class="topbar-actions">
+          <span id="dataStatus" class="status">Gotowe</span>
+          <button id="logoutButton" type="button" class="secondary">Wyloguj</button>
+        </div>
+      </header>
+
+      <section class="card filters">
+        <div class="filter-grid">
+          <div><label for="dateFrom">Od</label><input id="dateFrom" type="date" /></div>
+          <div><label for="dateTo">Do</label><input id="dateTo" type="date" /></div>
+          <div><label for="modelFilter">Model</label><select id="modelFilter"><option value="">Wszystkie</option></select></div>
+          <div><label for="colorFilter">Kolor</label><select id="colorFilter"><option value="">Wszystkie</option></select></div>
+          <div><label for="skuFilter">SKU</label><select id="skuFilter"><option value="">Wszystkie</option></select></div>
+          <div class="filter-action"><button id="applyFilters" type="button">Odśwież</button></div>
+        </div>
+      </section>
+
+      <section class="kpi-grid">
+        <article class="card kpi"><span>Sprzedaż skorygowana</span><strong id="kpiAdjustedSales">—</strong><small>w wybranym okresie</small></article>
+        <article class="card kpi"><span>Sprzedaż bez korekty</span><strong id="kpiRawSales">—</strong><small>spadki stanów</small></article>
+        <article class="card kpi"><span>Aktualny znany stan</span><strong id="kpiCurrentStock">—</strong><small id="kpiCurrentStockMeta">—</small></article>
+        <article class="card kpi"><span>Zdarzenia GAP</span><strong id="kpiGaps">—</strong><small>oznaczone przerwy w odczycie</small></article>
+      </section>
+
+      <section class="chart-grid">
+        <article class="card chart-card"><div class="section-title"><div><h2>Sprzedaż w czasie</h2><p class="muted small">Sprzedaż skorygowana dziennie</p></div></div><div class="chart-wrap"><canvas id="salesChart"></canvas></div></article>
+        <article class="card chart-card"><div class="section-title"><div><h2>Stan magazynowy</h2><p class="muted small">Suma stanów dla obserwowanych SKU</p></div></div><div class="chart-wrap"><canvas id="stockChart"></canvas></div></article>
+      </section>
+
+      <section class="table-grid">
+        <article class="card"><div class="section-title"><h2>TOP modele</h2></div><div class="table-wrap"><table><thead><tr><th>Model</th><th class="num">Sprzedaż skorygowana</th></tr></thead><tbody id="topModelsBody"></tbody></table></div></article>
+        <article class="card"><div class="section-title"><h2>TOP SKU</h2></div><div class="table-wrap"><table><thead><tr><th>SKU</th><th>Model</th><th>Kolor</th><th>Rozmiar</th><th class="num">Sprzedaż</th></tr></thead><tbody id="topSkusBody"></tbody></table></div></article>
+      </section>
+
+      <footer><span>Źródło: Supabase / MF-scraper</span><span id="lastRefresh"></span></footer>
+    </section>
+  </main>
+</body>
+</html>
