@@ -18,7 +18,6 @@
     dateTo: document.getElementById("dateTo"),
     modelFilter: document.getElementById("modelFilter"),
     colorFilter: document.getElementById("colorFilter"),
-    skuFilter: document.getElementById("skuFilter"),
     dataStatus: document.getElementById("dataStatus"),
     lastRefresh: document.getElementById("lastRefresh"),
     kpiAdjustedSales: document.getElementById("kpiAdjustedSales"),
@@ -58,7 +57,7 @@
       p_date_to: els.dateTo.value,
       p_model: els.modelFilter.value || null,
       p_color: els.colorFilter.value || null,
-      p_sku: els.skuFilter.value || null
+      p_sku: null
     };
   }
 
@@ -143,30 +142,23 @@
       .sort((a, b) => String(a).localeCompare(String(b), "pl", { numeric: true }));
   }
 
-  function fillSelect(select, values, labelFn = (v) => v) {
+  function fillSelect(select, values) {
     const current = select.value;
     select.innerHTML = '<option value="">Wszystkie</option>';
     values.forEach((value) => {
       const option = document.createElement("option");
       option.value = value;
-      option.textContent = labelFn(value);
+      option.textContent = value;
       select.appendChild(option);
     });
     if (values.includes(current)) select.value = current;
   }
 
   function rebuildFilterOptions() {
-    const model = els.modelFilter.value;
-    const color = els.colorFilter.value;
+    const selectedModel = els.modelFilter.value;
     fillSelect(els.modelFilter, uniqueSorted(products.map((p) => p.model)));
-    const colorSource = products.filter((p) => !model || p.model === model);
+    const colorSource = products.filter((p) => !selectedModel || p.model === selectedModel);
     fillSelect(els.colorFilter, uniqueSorted(colorSource.map((p) => p.color)));
-    const skuSource = products.filter((p) => (!els.modelFilter.value || p.model === els.modelFilter.value) && (!color || p.color === color));
-    const skuMap = new Map(skuSource.map((p) => [p.sku, p]));
-    fillSelect(els.skuFilter, uniqueSorted([...skuMap.keys()]), (sku) => {
-      const p = skuMap.get(sku);
-      return p ? `${sku} · ${p.size || "—"}` : sku;
-    });
   }
 
   async function rpc(name, params) {
@@ -273,31 +265,9 @@
       data: {
         labels: rows.map((r) => r.observed_date),
         datasets: [
-          {
-            type: "bar",
-            label: "Sprzedaż skorygowana",
-            data: values,
-            order: 3
-          },
-          {
-            type: "line",
-            label: "Średnia krocząca 7 odczytów",
-            data: avg7,
-            borderWidth: 3,
-            pointRadius: 0,
-            tension: 0.25,
-            order: 1
-          },
-          {
-            type: "line",
-            label: "Trend liniowy",
-            data: trend,
-            borderWidth: 2,
-            borderDash: [7, 5],
-            pointRadius: 0,
-            tension: 0,
-            order: 2
-          }
+          { type: "bar", label: "Sprzedaż skorygowana", data: values, order: 3 },
+          { type: "line", label: "Średnia krocząca 7 odczytów", data: avg7, borderWidth: 3, pointRadius: 0, tension: 0.25, order: 1 },
+          { type: "line", label: "Trend liniowy", data: trend, borderWidth: 2, borderDash: [7, 5], pointRadius: 0, tension: 0, order: 2 }
         ]
       },
       options: chartBaseOptions(true)
@@ -337,8 +307,10 @@
   els.loginForm.addEventListener("submit", login);
   els.logoutButton.addEventListener("click", logout);
   els.applyFilters.addEventListener("click", refreshDashboard);
-  els.modelFilter.addEventListener("change", () => { els.colorFilter.value = ""; els.skuFilter.value = ""; rebuildFilterOptions(); });
-  els.colorFilter.addEventListener("change", () => { els.skuFilter.value = ""; rebuildFilterOptions(); });
+  els.modelFilter.addEventListener("change", () => {
+    els.colorFilter.value = "";
+    rebuildFilterOptions();
+  });
 
   initialize().catch((error) => { console.error(error); show(els.loginView); setLoginError("Nie udało się uruchomić aplikacji."); });
 })();
