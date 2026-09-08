@@ -215,18 +215,105 @@
     els.kpiCurrentStockMeta.textContent = stock.product_count ? `${fmt.format(Number(stock.product_count))} SKU · stan znany do ${stock.max_observed_date || "—"}` : "Brak danych";
   }
 
-  function chartBaseOptions() {
-    return { responsive: true, maintainAspectRatio: false, interaction: { mode: "index", intersect: false }, plugins: { legend: { display: false } }, scales: { x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } }, y: { beginAtZero: true } } };
+  function chartBaseOptions(showLegend = false) {
+    return {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: { legend: { display: showLegend, position: "bottom" } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 10 }, grid: { display: false } },
+        y: { beginAtZero: true }
+      }
+    };
+  }
+
+  function movingAverage(values, windowSize = 7) {
+    return values.map((_, index) => {
+      const start = Math.max(0, index - windowSize + 1);
+      const window = values.slice(start, index + 1);
+      return window.reduce((sum, value) => sum + value, 0) / window.length;
+    });
+  }
+
+  function linearTrend(values) {
+    const n = values.length;
+    if (!n) return [];
+    if (n === 1) return [values[0]];
+
+    let sumX = 0;
+    let sumY = 0;
+    let sumXY = 0;
+    let sumXX = 0;
+
+    values.forEach((y, x) => {
+      sumX += x;
+      sumY += y;
+      sumXY += x * y;
+      sumXX += x * x;
+    });
+
+    const denominator = n * sumXX - sumX * sumX;
+    if (!denominator) return values.map(() => sumY / n);
+
+    const slope = (n * sumXY - sumX * sumY) / denominator;
+    const intercept = (sumY - slope * sumX) / n;
+    return values.map((_, x) => Math.max(0, intercept + slope * x));
   }
 
   function renderSalesChart(rows) {
     if (salesChart) salesChart.destroy();
-    salesChart = new Chart(document.getElementById("salesChart"), { type: "bar", data: { labels: rows.map((r) => r.observed_date), datasets: [{ label: "Sprzedaż skorygowana", data: rows.map((r) => Number(r.adjusted_sales || 0)) }] }, options: chartBaseOptions() });
+
+    const values = rows.map((r) => Number(r.adjusted_sales || 0));
+    const avg7 = movingAverage(values, 7);
+    const trend = linearTrend(values);
+
+    salesChart = new Chart(document.getElementById("salesChart"), {
+      type: "bar",
+      data: {
+        labels: rows.map((r) => r.observed_date),
+        datasets: [
+          {
+            type: "bar",
+            label: "Sprzedaż skorygowana",
+            data: values,
+            order: 3
+          },
+          {
+            type: "line",
+            label: "Średnia krocząca 7 odczytów",
+            data: avg7,
+            borderWidth: 3,
+            pointRadius: 0,
+            tension: 0.25,
+            order: 1
+          },
+          {
+            type: "line",
+            label: "Trend liniowy",
+            data: trend,
+            borderWidth: 2,
+            borderDash: [7, 5],
+            pointRadius: 0,
+            tension: 0,
+            order: 2
+          }
+        ]
+      },
+      options: chartBaseOptions(true)
+    });
   }
 
   function renderStockChart(rows) {
     if (stockChart) stockChart.destroy();
-    stockChart = new Chart(document.getElementById("stockChart"), { type: "line", data: { labels: rows.map((r) => r.observed_date), datasets: [{ label: "Stan magazynowy", data: rows.map((r) => Number(r.stock_qty || 0)), tension: 0.15 }] }, options: chartBaseOptions() });
+    stockChart = new Chart(document.getElementById("stockChart"), {
+      type: "line",
+      data: {
+        labels: rows.map((r) => r.observed_date),
+        datasets: [{ label: "Stan magazynowy", data: rows.map((r) => Number(r.stock_qty || 0)), tension: 0.15 }]
+      },
+      options: chartBaseOptions(false)
+    });
   }
 
   function renderTopModels(rows) {
