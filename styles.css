@@ -1,0 +1,72 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17202a;
+  background: #f5f7fa;
+  line-height: 1.45;
+  font-synthesis: none;
+}
+* { box-sizing: border-box; }
+body { margin: 0; min-height: 100vh; background: #f5f7fa; }
+button, input, select { font: inherit; }
+button { cursor: pointer; }
+.shell { width: min(1440px, calc(100% - 32px)); margin: 0 auto; padding: 28px 0 40px; }
+.hidden { display: none !important; }
+.card { background: #fff; border: 1px solid #e5e9ef; border-radius: 14px; box-shadow: 0 2px 10px rgba(20, 30, 50, 0.04); }
+.narrow { width: min(440px, 100%); margin: 10vh auto 0; padding: 28px; }
+.brand { font-weight: 800; letter-spacing: .02em; }
+.muted { color: #6b7280; }
+.small { font-size: .86rem; }
+.error { color: #a61b1b; margin-top: 12px; }
+.notice { margin-top: 18px; padding: 14px; border-radius: 10px; background: #f2f5f8; font-size: .92rem; }
+code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+label { display: block; font-weight: 650; font-size: .86rem; margin-bottom: 6px; }
+input, select { width: 100%; min-height: 42px; border: 1px solid #cfd6df; border-radius: 9px; padding: 8px 10px; background: #fff; color: #17202a; }
+input:focus, select:focus { outline: 2px solid rgba(32, 100, 180, .18); border-color: #4c7fb8; }
+button { border: 0; border-radius: 9px; min-height: 42px; padding: 9px 16px; background: #243b53; color: white; font-weight: 700; }
+button:hover { filter: brightness(.96); }
+button:disabled { opacity: .55; cursor: wait; }
+button.secondary { background: #eef2f6; color: #273444; }
+#loginForm button { width: 100%; margin-top: 14px; }
+.topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; gap: 16px; }
+.topbar-actions { display: flex; align-items: center; gap: 12px; }
+.status { font-size: .86rem; color: #5c6773; }
+.filters { padding: 16px; margin-bottom: 16px; }
+.filter-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1.1fr auto; gap: 12px; align-items: end; }
+.filter-action button { min-width: 110px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 16px; }
+.kpi { padding: 18px; }
+.kpi span { display: block; color: #65707d; font-size: .88rem; }
+.kpi strong { display: block; font-size: 1.8rem; margin: 6px 0 3px; letter-spacing: -.02em; }
+.kpi small { color: #7b8490; }
+.chart-grid, .table-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+.chart-card { padding: 16px; min-width: 0; }
+.section-title { display: flex; justify-content: space-between; align-items: start; gap: 12px; margin-bottom: 8px; }
+h1, h2, p { margin-top: 0; }
+h1 { font-size: 1.65rem; }
+h2 { font-size: 1rem; margin-bottom: 2px; }
+.chart-wrap { height: 320px; }
+.table-grid .card { padding: 16px; min-width: 0; }
+.table-wrap { overflow: auto; max-height: 420px; }
+table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+th, td { padding: 9px 8px; border-bottom: 1px solid #edf0f3; text-align: left; white-space: nowrap; }
+th { position: sticky; top: 0; background: #fff; color: #5b6570; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em; }
+.num { text-align: right; }
+footer { display: flex; justify-content: space-between; gap: 16px; color: #7b8490; font-size: .82rem; padding: 4px 2px; }
+@media (max-width: 1050px) {
+  .filter-grid { grid-template-columns: repeat(3, 1fr); }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .chart-grid, .table-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 650px) {
+  .shell { width: min(100% - 20px, 1440px); padding-top: 16px; }
+  .topbar { align-items: flex-start; }
+  .topbar-actions { flex-direction: column; align-items: flex-end; gap: 6px; }
+  .filter-grid { grid-template-columns: 1fr 1fr; }
+  .filter-action { grid-column: 1 / -1; }
+  .filter-action button { width: 100%; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .kpi { padding: 14px; }
+  .kpi strong { font-size: 1.45rem; }
+  .chart-wrap { height: 260px; }
+  footer { flex-direction: column; }
+}
