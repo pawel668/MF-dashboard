@@ -33,18 +33,26 @@
 
   window.MF_MODEL_LINKS = MODEL_LINKS;
 
-  // app.js prosi dziś o TOP 15. Przechwytujemy wyłącznie ranking modeli
-  // i pobieramy pełną listę, aby UI mogło ją rozwinąć bez kolejnego zapytania.
+  // Pobieramy pełne rankingi, a warstwa UI decyduje ile pozycji pokazać.
+  // Nie zmieniamy logiki metryk ani filtrów.
   if (!window.supabase || typeof window.supabase.createClient !== "function") return;
 
   const previousCreateClient = window.supabase.createClient.bind(window.supabase);
+  const fullRankingRpcs = new Set([
+    "dashboard_v2_top_categories",
+    "dashboard_v2_top_models",
+    "dashboard_v2_top_colors",
+    "dashboard_v2_top_model_colors",
+    "dashboard_v2_top_sizes",
+    "dashboard_top_models"
+  ]);
 
-  window.supabase.createClient = function createClientWithFullModelRanking(...args) {
+  window.supabase.createClient = function createClientWithFullRankings(...args) {
     const client = previousCreateClient(...args);
     const previousRpc = client.rpc.bind(client);
 
-    client.rpc = function rpcWithFullModelRanking(name, params = {}) {
-      if (name === "dashboard_v2_top_models" || name === "dashboard_top_models") {
+    client.rpc = function rpcWithFullRankings(name, params = {}) {
+      if (fullRankingRpcs.has(name)) {
         return previousRpc(name, { ...params, p_limit: 500 });
       }
       return previousRpc(name, params);
